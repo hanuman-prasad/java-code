@@ -1,108 +1,88 @@
 package edu.elearning.locks;
 
-import java.util.concurrent.TimeUnit;
+
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
+import static edu.elearning.Utils.printMessage;
+import static edu.elearning.Utils.sleep;
 
 public class ReentrantRnWLockExample {
 
-    private static final long MAX = 100L;
-    private static final Lock lock = new ReentrantLock();
+    private static final int MAX = 100000;
 
-    private static int counter;
+    private static Map<Integer, Integer> map = new HashMap<>();
+
+    private static ReentrantReadWriteLock readWriteLock;
+
+    private static Lock readLock;
+    private static Lock writeLock;
+    private static int c;
+
+    private static Thread[] rt = new Thread[1];
+    private static Thread[] wt = new Thread[10];
 
     public static void main(String[] args) throws InterruptedException {
 
-        Thread t1 = new Thread(ReentrantRnWLockExample::inc);
-        Thread t2 = new Thread(ReentrantRnWLockExample::dec);
+        readWriteLock = new ReentrantReadWriteLock();
+        readLock = readWriteLock.readLock();
+        writeLock = readWriteLock.writeLock();
 
-        t1.setName("Increment Thread");
-        t2.setName("Decrement Thread");
 
-        long start = System.currentTimeMillis();
-        t1.start();
-        t2.start();
+        for (int i = 0; i < rt.length; i++) {
+            rt[i] = new Thread(ReentrantRnWLockExample::read);
+            rt[i].setName("ReadThread-" + (i + 1));
+            rt[i].start();
+        }
 
-        for (int i = 0; i < 10; i++) {
-
-            sleep(5);
-            t1.interrupt();
-            printMessage(" isInterrupted : " + t1.isInterrupted());
+        for (int i = 0; i < wt.length; i++) {
+            wt[i] = new Thread(ReentrantRnWLockExample::write);
+            wt[i].setName("WriteThread-" + (i + 1));
+            wt[i].start();
         }
 
 
-        t1.join();
-        t2.join();
+        for (Thread t : rt) {
+            t.join();
+        }
 
-        long end = System.currentTimeMillis();
+        for (Thread t : wt) {
+            t.join();
+        }
 
-        System.out.println("Time elapsed : " + (end - start));
-
-        System.out.println("Counter value : " + counter);
-
-
+        System.out.println("c = " + c);
     }
 
 
-    private static void inc() {
+    private static void read() {
+        for (int i = 0; i < MAX; i++) {
 
-        for (long i = 0; i < MAX; i++) {
-            printMessage("counter value is : " + counter);
-            boolean gotLock = false;
+            readLock.lock();
+            printMessage("value : " + c);
             try {
-                gotLock = lock.tryLock(10, TimeUnit.SECONDS);
-                counter++;
-
-//                sleep();
-            } catch (InterruptedException e) {
-                printInterruptMessage("while taking lock");
-            } finally {
-                if (gotLock) {
-                    lock.unlock();
+                for (Thread t : wt) {
+                    System.out.println(t.getName() + " : " + t.getState());
                 }
-            }
-        }
-    }
-
-    private static void dec() {
-        for (long i = 0; i < MAX; i++) {
-            printMessage("counter value is : " + counter);
-            lock.lock();
-            try {
-                counter--;
-                sleep();
+                System.out.println(Thread.currentThread().getName() + " : " + Thread.currentThread().getState());
+                sleep(5);
             } finally {
-                lock.unlock();
+                readLock.unlock();
+            }
+
+        }
+    }
+
+    private static void write() {
+        for (int i = 0; i < MAX; i++) {
+
+            writeLock.lock();
+            try {
+                c++;
+            } finally {
+                writeLock.unlock();
             }
         }
     }
-
-    private static void sleep() {
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            printInterruptMessage("in sleep method");
-        }
-    }
-
-    private static void sleep(int sec) {
-        try {
-            Thread.sleep(sec * 1000);
-        } catch (InterruptedException e) {
-            printInterruptMessage("in sleep method");
-        }
-    }
-
-    private static String threadName() {
-        return Thread.currentThread().getName();
-    }
-
-    private static void printMessage(String msg) {
-        System.out.println(threadName() + " " + msg);
-    }
-
-    private static void printInterruptMessage(String msg) {
-        printMessage("got interrupted " + msg + ". Interrupt status : " + Thread.currentThread().isInterrupted());
-    }
-
 }
