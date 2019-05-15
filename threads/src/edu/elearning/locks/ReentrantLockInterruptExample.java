@@ -1,8 +1,12 @@
 package edu.elearning.locks;
 
+import edu.elearning.Counter;
+
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+
+import static edu.elearning.Utils.*;
 
 
 /**
@@ -10,10 +14,10 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class ReentrantLockInterruptExample {
 
-    private static final long MAX = 100L;
+
     private static final Lock lock = new ReentrantLock();
 
-    private static int counter;
+    private static Counter counter = new Counter();
 
     public static void main(String[] args) throws InterruptedException {
 
@@ -51,11 +55,11 @@ public class ReentrantLockInterruptExample {
     private static void inc() {
 
         for (long i = 0; i < MAX; i++) {
-            printMessage("counter value is : " + counter);
+            printMessage("counter value is : " + counter.getCounter());
             boolean gotLock = false;
             try {
                 gotLock = lock.tryLock(10, TimeUnit.SECONDS);
-                counter++;
+                counter.incCounter();
 
 //                sleep();
             } catch (InterruptedException e) {
@@ -70,43 +74,14 @@ public class ReentrantLockInterruptExample {
 
     private static void dec() {
         for (long i = 0; i < MAX; i++) {
-            printMessage("counter value is : " + counter);
+            printMessage("counter value is : " + counter.getCounter());
             lock.lock();
             try {
-                counter--;
+                counter.deccCounter();
                 sleep();
             } finally {
                 lock.unlock();
             }
         }
     }
-
-    private static void sleep() {
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            printInterruptMessage("in sleep method");
-        }
-    }
-
-    private static void sleep(int sec) {
-        try {
-            Thread.sleep(sec * 1000);
-        } catch (InterruptedException e) {
-            printInterruptMessage("in sleep method");
-        }
-    }
-
-    private static String threadName() {
-        return Thread.currentThread().getName();
-    }
-
-    private static void printMessage(String msg) {
-        System.out.println(threadName() + " " + msg);
-    }
-
-    private static void printInterruptMessage(String msg) {
-        printMessage("got interrupted " + msg + ". Interrupt status : " + Thread.currentThread().isInterrupted());
-    }
-
 }
