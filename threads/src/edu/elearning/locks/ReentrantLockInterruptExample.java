@@ -6,7 +6,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static edu.elearning.Utils.*;
+import static edu.elearning.common.Utils.*;
 
 
 /**

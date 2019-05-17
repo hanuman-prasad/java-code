@@ -6,8 +6,8 @@ import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import static edu.elearning.Utils.printMessage;
-import static edu.elearning.Utils.sleep;
+import static edu.elearning.common.Utils.printMessage;
+import static edu.elearning.common.Utils.sleep;
 
 public class ReentrantRnWLockExample {
 

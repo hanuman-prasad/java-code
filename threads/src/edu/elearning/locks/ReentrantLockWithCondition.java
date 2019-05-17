@@ -4,7 +4,7 @@ import java.util.Stack;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static edu.elearning.Utils.printMessage;
+import static edu.elearning.common.Utils.printMessage;
 
 public class ReentrantLockWithCondition {
 

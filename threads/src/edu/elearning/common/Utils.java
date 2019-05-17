@@ -1,4 +1,4 @@
-package edu.elearning;
+package edu.elearning.common;
 
 public class Utils {
 
