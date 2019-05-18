@@ -1,5 +1,7 @@
 package edu.elearning.common;
 
+import static edu.elearning.common.Utils.*;
+
 public class Tasks {
 
     public static Thread[] getTasks(int size) {
@@ -9,14 +11,17 @@ public class Tasks {
 
 
         Thread[] threads = new Thread[size];
-        for (Thread t : threads) {
-            t = new Thread(Tasks::run);
+        for (int i = 0; i < threads.length; i++) {
+            threads[i] = new Thread(Tasks::run);
+            threads[i].setName("Task--"+i);
         }
 
         return threads;
     }
 
     private static void run() {
-        System.out.println(Thread.currentThread().getName() + " running..");
+        printMessage(" going to sleep..");
+        sleep(1);
+        printMessage(" exiting..");
     }
 }
