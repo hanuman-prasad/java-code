@@ -13,7 +13,6 @@ public class Tasks {
         Thread[] threads = new Thread[size];
         for (int i = 0; i < threads.length; i++) {
             threads[i] = new Thread(Tasks::run);
-            threads[i].setName("Task--"+i);
         }
 
         return threads;
@@ -21,7 +20,7 @@ public class Tasks {
 
     private static void run() {
         printMessage(" going to sleep..");
-        sleep(1);
+        sleep(5);
         printMessage(" exiting..");
     }
 }
