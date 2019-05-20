@@ -2,9 +2,8 @@ package edu.elearning.executor;
 
 import edu.elearning.common.Tasks;
 
+import java.util.List;
 import java.util.concurrent.*;
-
-import static edu.elearning.common.Utils.sleep;
 
 public class ThreadPoolExecutorExample {
 
@@ -12,13 +11,16 @@ public class ThreadPoolExecutorExample {
         ThreadPoolExecutor executor = new ThreadPoolExecutor(3, 5, 2, TimeUnit.SECONDS, new ArrayBlockingQueue<>(10), new ThreadPoolExecutorThreadFactory(), new ThreadPoolExecutorRejectedExecutionHandler());
 
 
-        Thread[] tasks = Tasks.getTasks(20);
+        Runnable[] tasks = Tasks.getTasks(20);
         for (int i = 0; i < tasks.length; i++) {
 
             Runnable r = tasks[i];
             System.out.println("submitting task : " +(i+1));
             executor.execute(r);
-//                 sleep(1);
+            if (i==10) {
+                List<Runnable> runnables = executor.shutdownNow();
+                System.out.println("-------  " + runnables.size());
+            }
         }
 
         executor.shutdown();
@@ -34,6 +36,7 @@ public class ThreadPoolExecutorExample {
 
             Thread thread = new Thread(r);
             thread.setName("Task--" + i++);
+
             return thread;
         }
     }
@@ -42,7 +45,9 @@ public class ThreadPoolExecutorExample {
         @Override
         public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
 
-            System.out.println(((Thread)r).getName() + " rejecting because of queue size");
+            String reason = executor.isShutdown() ? "executor is shutdown!" : "queue is full";
+
+            System.out.println((r).toString() + " rejecting because of " + reason);
         }
     }
 }
