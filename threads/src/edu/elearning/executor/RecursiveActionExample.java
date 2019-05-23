@@ -2,6 +2,7 @@ package edu.elearning.executor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.RecursiveAction;
 
@@ -14,6 +15,16 @@ public class RecursiveActionExample extends RecursiveAction {
     public RecursiveActionExample(String workload) {
         this.workload = workload;
     }
+
+
+    public static void main(String[] args) {
+        ForkJoinPool commonPool = ForkJoinPool.commonPool();
+
+        RecursiveActionExample recursiveAction = new RecursiveActionExample("abc");
+        commonPool.execute(recursiveAction);
+
+    }
+
 
     @Override
     protected void compute() {
